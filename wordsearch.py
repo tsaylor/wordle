@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 from flask import Flask
 from flask import request
 
@@ -16,17 +17,14 @@ def filter_known(regex, candidates):
 
 @app.route('/')
 def main():
+    # print("{} - handling request: {}".format(datetime.utcnow(), request.args))
     query = request.args.get('q', '.....')
     unplaced = request.args.get('u', None)
-    print(query)
     matches = filter_known(query, words)
-    print(matches)
     if unplaced:
         for char in unplaced:
-            print(char)
             if len(matches) > 0:
                 matches = filter_known(char, matches)
-                print(matches)
     return '<br>\n'.join(sorted(matches))
 
 
