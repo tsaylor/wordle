@@ -1,20 +1,33 @@
 import re
 from flask import Flask
+from flask import request
 
 
 app = Flask(__name__)
 
 
-
+def filter_known(regex, candidates):
+    matches = set()
+    for c in candidates:
+        match = re.search(regex, c)
+        if(match):
+            matches.add(c)
+    return matches
 
 @app.route('/')
 def main():
-    response = set()
-    for w in words:
-        match = re.match('..rge', w)
-        if(match):
-            response.add(match.group(0))
-    return '\n'.join(response)
+    query = request.args.get('q', '.....')
+    unplaced = request.args.get('u', None)
+    print(query)
+    matches = filter_known(query, words)
+    print(matches)
+    if unplaced:
+        for char in unplaced:
+            print(char)
+            if len(matches) > 0:
+                matches = filter_known(char, matches)
+                print(matches)
+    return '<br>\n'.join(sorted(matches))
 
 
 
