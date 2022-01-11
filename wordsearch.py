@@ -20,11 +20,16 @@ def main():
     # print("{} - handling request: {}".format(datetime.utcnow(), request.args))
     query = request.args.get('q', '.....')
     unplaced = request.args.get('u', None)
+    not_used = request.args.get('n', None)
     matches = filter_known(query, words)
     if unplaced:
         for char in unplaced:
             if len(matches) > 0:
                 matches = filter_known(char, matches)
+    if not_used:
+        for char in not_used:
+            if len(matches) > 0:
+                matches = filter_known("^[^{}]*$".format(char), matches)
     return '<br>\n'.join(sorted(matches))
 
 
