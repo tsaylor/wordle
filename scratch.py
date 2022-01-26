@@ -83,7 +83,7 @@ def generate_word_scores(words, letter_frequency):
     word_scores = {w: sum(map(letter_scores.get, w)) for w in words}
     return word_scores
 
-def suggest_guesses(required, excluded, candidates, word_scores):
+def suggest_guesses(required, excluded, candidates):
     # print("total: ", len(wordsets))
     candidates = exclude_wordsets(excluded, candidates)
     # print("w/o exclusions: ", len(candidates))
@@ -121,8 +121,8 @@ if __name__ == "__main__":
     # ppdict(letter_incidence)
     # print(match_quality("rusty", "raise"))
     # print(match_quality("indie", "rusty"))
-    print("suggest_guesses('', '', wordsets, 1) # required, excluded")
-    suggest_guesses('', '', wordsets, 1)
+    print("suggest_guesses('', '', wordsets) # required, excluded")
+    suggest_guesses('', '', wordsets)
     # print(filter_words_remaining("proxy", words))
     # words_remaining = {guess: len(filter_words_remaining(guess, words)) for guess in words}
     # ppdict(words_remaining)
