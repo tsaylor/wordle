@@ -7,7 +7,7 @@ Run `python -i scratch.py` and then `suggest_guesses('', '', words)` to generate
 `suggest_guesses(required, excluded, candidates)`
 * required - a string containing any letters that the answer must have (yellow and green boxes).
 * excluded - a string containing any letters that the answer may not have (black boxes).
-* candidates - a dict of the word list where the words are values and the keys are `frozenset`s of that word.
+* candidates - a dict of the word list where the words are the keys and the values are `frozenset`s of that word.
 
 `suggest_guesses` filters all possible guesses in Wordle based on the letters you know are in or not in the answer, and it rates them based on frequently the letters of the guess are seen in possible answers.
 
