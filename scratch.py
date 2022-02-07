@@ -1,12 +1,13 @@
+import sys
 import string
+import re
 from pprint import pprint as pp
 import functools, itertools
 
 
-def generate_wordset():
+def generate_wordset(wordfile="wordle-wordlist.txt"):
     """Reads a word file and loads a dict: {word: set(word)}"""
-    with open("wordle-wordlist.txt") as f:
-        # with open('wordlist.txt') as f:
+    with open(wordfile) as f:
         return {
             w: set(w)
             for w in f.read().strip().split("\n")
@@ -54,6 +55,11 @@ def exclude_wordsets(letterset, words):
     return {w: ws for (w, ws) in words.items() if ws.isdisjoint(letterset)}
 
 
+def filter_wordsets_positionally(regex, words):
+    """return words that match known letter positions"""
+    return {w: ws for (w, ws) in words.items() if re.search(regex, w)}
+
+
 def exclude_repeated_letters(words):
     return {w: ws for (w, ws) in words.items() if len(ws) == len(w)}
 
@@ -62,7 +68,12 @@ def filter_repeated_letters(words):
     return {w: ws for (w, ws) in words.items() if len(ws) != len(w)}
 
 
-def generate_word_scores(words, letter_frequency):
+def generate_word_scores(words, letter_frequency, unscored_letters={}):
+    unscored_letters = set(unscored_letters)
+    if len(unscored_letters):
+        for letter in letter_frequency:
+            if letter in unscored_letters:
+                letter_frequency[letter] = 0
     max_frequency = max(letter_frequency.values())
     letter_scores = {
         letter: letter_frequency[letter] / max_frequency for letter in letter_frequency
@@ -71,9 +82,11 @@ def generate_word_scores(words, letter_frequency):
     return word_scores
 
 
-def suggest_guesses(required, excluded, candidates):
-    candidates = exclude_wordsets(excluded, candidates)
+def suggest_guesses(required, excluded, full_candidates, placements=None):
+    candidates = exclude_wordsets(excluded, full_candidates)
     candidates = filter_wordsets(required, candidates)
+    if placements:
+        candidates = filter_wordsets_positionally(placements, candidates)
 
     if len(candidates) > 0:
         letter_frequency = generate_letter_frequency(candidates)
@@ -92,8 +105,42 @@ def suggest_guesses(required, excluded, candidates):
         )
         print(f"\nBest guesses w/o repeats (10 of {len(no_repeat_candidates)})")
         ppdict(scored_no_repeat_candidates, limit=10)
+
+        scored_discriminators = generate_word_scores(
+            no_repeat_candidates,
+            letter_frequency,
+            unscored_letters=required+excluded
+        )
+        print(f"\nBest discriminators (10 of {len(no_repeat_candidates)})")
+        ppdict(scored_discriminators, limit=10)
+
     else:
         print("\nWithout repeats, all words are filtered out")
+
+    # top_twenty_candidates = dict_to_sorted_list(scored_no_repeat_candidates)[:20]
+    # pp(top_twenty_candidates)
+    # letter_frequency = generate_letter_frequency(list(a[0] for a in top_twenty_candidates))
+    # ppdict(letter_frequency)
+    # scored_discriminators = generate_word_scores(
+    #     exclude_repeated_letters(full_candidates),
+    #     letter_frequency
+    # )
+    # print("best discriminators")
+    # ppdict(scored_discriminators, limit=10)
+
+    # no_repeat_candidates = exclude_repeated_letters(candidates)
+    # if len(no_repeat_candidates) > 0:
+    #     letter_frequency = generate_letter_frequency(no_repeat_candidates)
+    #     scored_no_repeat_candidates = generate_word_scores(
+    #         no_repeat_candidates,
+    #         letter_frequency,
+    #     )
+    #     print(f"\nBest guesses w/o repeats (10 of {len(no_repeat_candidates)})")
+    #     ppdict(scored_no_repeat_candidates, limit=10)
+    # else:
+    #     print("\nWithout repeats, all words are filtered out")
+
+
 
     # print('Median words')
     # scores = sorted(scored_candidates.values())
@@ -127,10 +174,14 @@ def suggest_guesses(required, excluded, candidates):
 
 
 if __name__ == "__main__":
-    words = generate_wordset()
+    try:
+        wordfile = sys.argv[1]
+    except IndexError:
+        wordfile = "wordle-wordlist.txt"
+    words = generate_wordset(wordfile)
     # wordsets = {frozenset(w): w for w in words}
     letter_incidence = generate_letter_frequency(words)
-    print("suggest_guesses('', '', words) # required, excluded")
+    print("suggest_guesses('', '', words) # required, excluded (also placements='.....')")
     suggest_guesses("", "", words)
 
     # pp(sorted(letter_incidence.items(), key=lambda x: x[1], reverse=True))
