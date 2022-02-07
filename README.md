@@ -1,13 +1,13 @@
 # Quickstart
 
-Run `python -i scratch.py` and then `suggest_guesses('', '', wordsets)` to generate two lists of scored guesses, one including duplicate letters and the other without. Words without duplicates are better guesses initially because they provide more information about the answer (more colored squares), but the answer may include duplicate letters, so consider both lists. As you make guesses, add green and yellow letters to the first argument, and black letters to the second. Eventually you'll only have a few words left and can guess the answer.
+Run `python -i scratch.py` and then `suggest_guesses('', '', words)` to generate two lists of scored guesses, one including duplicate letters and the other without. Words without duplicates are better guesses initially because they provide more information about the answer (more colored squares), but the answer may include duplicate letters, so consider both lists. As you make guesses, add green and yellow letters to the first argument, and black letters to the second. Eventually you'll only have a few words left and can guess the answer.
 
 # How it works
 
 `suggest_guesses(required, excluded, candidates)`
 * required - a string containing any letters that the answer must have (yellow and green boxes).
 * excluded - a string containing any letters that the answer may not have (black boxes).
-* candidates - a dict of the word list where the words are values and the keys are `frozenset`s of that word.
+* candidates - a dict of the word list where the words are the keys and the values are `frozenset`s of that word.
 
 `suggest_guesses` filters all possible guesses in Wordle based on the letters you know are in or not in the answer, and it rates them based on frequently the letters of the guess are seen in possible answers.
 
@@ -36,7 +36,7 @@ Then word scoring would sum those values like this:
 | rural | 3           |
 | shave | 2.666666666 |
 
-Before guessing anything, you could run `suggest_guesses('', '', wordsets)` and you'd get a list of suggested guesses very much like the above table. Then if you guessed "hoard", you might get yellow squares for "a" and "r" and black for everything else, so you could run `suggest_guesses('ar', 'hod', wordsets)` to get new suggestions. Since we know "h" isn't in the answer, "shave" will be removed and everything is recalculated, like this:
+Before guessing anything, you could run `suggest_guesses('', '', words)` and you'd get a list of suggested guesses very much like the above table. Then if you guessed "hoard", you might get yellow squares for "a" and "r" and black for everything else, so you could run `suggest_guesses('ar', 'hod', words)` to get new suggestions. Since we know "h" isn't in the answer, "shave" will be removed and everything is recalculated, like this:
 
 | letter | freq | normalized |
 | :----- | :--- | :--------- |
